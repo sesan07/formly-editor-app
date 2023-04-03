@@ -1,0 +1,62 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.mat-dialog-content {
+    flex-grow: 1;
+}
+
+.mat-dialog-title {
+    margin: 0;
+}
+
+.json-field-wrapper {
+    display: flex;
+    column-gap: 8px;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.json-field {
+    display: block;
+    flex-grow: 1;
+}
+
+.file-select-button {
+    align-self: flex-start;
+}
+
+.text-editor {
+    height: 100%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    height: 100%;
+}
+
+:host ::ng-deep {
+    .mat-tab-body-content {
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .json-field {
+        .mat-form-field-wrapper,
+        .mat-form-field-infix,
+        .mat-form-field-flex {
+            height: 100%;
+        }
+
+        .mat-form-field-wrapper,
+        .mat-form-field-infix {
+            box-sizing: border-box;
+        }
+    }
+}

@@ -1,0 +1,59 @@
+:host {
+    display: block;
+}
+
+.header {
+    display: flex;
+    min-height: var(--editor-tree-item-height);
+    position: relative;
+    column-gap: 4px;
+    align-items: center;
+    padding: 4px;
+    white-space: nowrap;
+    border-radius: 4px;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    &.active {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+    }
+
+    &.active:hover {
+        background-color: rgba(0, 0, 0, 0.16);
+        border-radius: 4px;
+    }
+}
+
+.children {
+    overflow-y: hidden;
+}
+
+.tree-item-header-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.tree-item-header-options {
+    position: sticky;
+    right: 4px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+        0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    visibility: hidden;
+}
+
+.tree-item-header-options.visible {
+    visibility: visible;
+}
+
+.tree-item-side-line {
+    position: absolute;
+    height: 100%;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+}

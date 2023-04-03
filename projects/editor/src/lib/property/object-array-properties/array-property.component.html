@@ -1,0 +1,171 @@
+<editor-tree-item
+    class="cursor-pointer"
+    *ngIf="!isSimplified; else simplifiedView"
+    [treeLevel]="treeLevel"
+    [(isExpanded)]="isExpanded"
+    [isExpandable]="true"
+    [hasOptions]="hasOptions"
+    [optionsMenu]="optionsMenu"
+>
+    <editor-property-key
+        headerContent
+        [key]="property.key"
+        [isEditable]="property.isKeyEditable"
+        (keyChange)="onKeyChanged($event)"
+    >
+        <span>{{ '[ ' + childProperties.length + ' ]' }}</span>
+    </editor-property-key>
+
+    <ng-container childrenContent>
+        <ng-container *ngTemplateOutlet="childPropertiesContainer"></ng-container>
+    </ng-container>
+</editor-tree-item>
+
+<ng-template #simplifiedView>
+    <mat-expansion-panel
+        class="simplified-panel"
+        [(expanded)]="isExpanded"
+    >
+        <mat-expansion-panel-header>
+            <span class="simplified-header">
+                <span class="simplified-header-left">
+                    {{ (property.name || property.key) + ' [ ' + childProperties.length + ' ]' }}
+                </span>
+                <button
+                    *ngIf="canAdd"
+                    mat-icon-button
+                    (click)="onAddChild(); $event.stopPropagation()"
+                >
+                    <mat-icon>add</mat-icon>
+                </button>
+            </span>
+        </mat-expansion-panel-header>
+        <mat-accordion>
+            <mat-expansion-panel *ngFor="let child of childProperties; let index = index; trackBy: trackByPropertyKey">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>Item {{ index + 1 }}</mat-panel-title>
+                    <button
+                        *ngIf="child.isRemovable"
+                        class="simple-remove-btn"
+                        mat-icon-button
+                        color="warn"
+                        (click)="onRemoveChild(index)"
+                    >
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                </mat-expansion-panel-header>
+                <ng-container
+                    [ngTemplateOutlet]="childProperty"
+                    [ngTemplateOutletContext]="{ child, index }"
+                >
+                </ng-container>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </mat-expansion-panel>
+</ng-template>
+
+<ng-template #childPropertiesContainer>
+    <ng-container *ngFor="let child of childProperties; let index = index; trackBy: trackByPropertyKey">
+        <ng-container
+            [ngTemplateOutlet]="childProperty"
+            [ngTemplateOutletContext]="{ child, index }"
+        >
+        </ng-container>
+    </ng-container>
+</ng-template>
+
+<ng-template
+    #childProperty
+    let-child="child"
+    let-index="index"
+>
+    <ng-container [ngSwitch]="child.type">
+        <editor-object-property
+            *ngSwitchCase="typeofProperty.OBJECT"
+            [treeLevel]="childrenTreeLevel"
+            [path]="getChildPath(child.key)"
+            [target]="target"
+            [property]="propertyService.getAsObjectProperty(child)"
+            [isSimplified]="isSimplified"
+            (remove)="onRemoveChild(index)"
+            (targetChanged)="targetChanged.emit($event)"
+        >
+        </editor-object-property>
+
+        <editor-boolean-property
+            *ngSwitchCase="typeofProperty.BOOLEAN"
+            [treeLevel]="childrenTreeLevel"
+            [path]="getChildPath(child.key)"
+            [property]="child"
+            [target]="target"
+            [isSimplified]="isSimplified"
+            (remove)="onRemoveChild(index)"
+            (targetChanged)="targetChanged.emit($event)"
+        >
+        </editor-boolean-property>
+
+        <editor-chip-list-property
+            *ngSwitchCase="typeofProperty.CHIP_LIST"
+            [treeLevel]="childrenTreeLevel"
+            [path]="getChildPath(child.key)"
+            [property]="propertyService.getAsChiplistProperty(child)"
+            [target]="target"
+            [isSimplified]="isSimplified"
+            (remove)="onRemoveChild(index)"
+            (targetChanged)="targetChanged.emit($event)"
+        >
+        </editor-chip-list-property>
+
+        <editor-textarea-property
+            *ngSwitchCase="typeofProperty.TEXTAREA"
+            [treeLevel]="childrenTreeLevel"
+            [path]="getChildPath(child.key)"
+            [property]="propertyService.getAsTextareaProperty(child)"
+            [target]="target"
+            [isSimplified]="isSimplified"
+            (remove)="onRemoveChild(index)"
+            (targetChanged)="targetChanged.emit($event)"
+        >
+        </editor-textarea-property>
+
+        <ng-container *ngSwitchCase="typeofProperty.NUMBER">
+            <ng-container *ngTemplateOutlet="inputProperty"></ng-container>
+        </ng-container>
+        <ng-container *ngSwitchCase="typeofProperty.TEXT">
+            <ng-container *ngTemplateOutlet="inputProperty"></ng-container>
+        </ng-container>
+        <ng-template #inputProperty>
+            <editor-input-property
+                [treeLevel]="childrenTreeLevel"
+                [path]="getChildPath(child.key)"
+                [property]="propertyService.getAsInputProperty(child)"
+                [target]="target"
+                [isSimplified]="isSimplified"
+                (remove)="onRemoveChild(index)"
+                (targetChanged)="targetChanged.emit($event)"
+            >
+            </editor-input-property>
+        </ng-template>
+    </ng-container>
+</ng-template>
+
+<mat-menu #optionsMenu="matMenu">
+    <button
+        *ngIf="canAdd"
+        class="editor-mat-menu-item"
+        mat-menu-item
+        (click)="onAddChild()"
+    >
+        <mat-icon>add</mat-icon>
+        <span>Add {{ property.childProperty.type }}</span>
+    </button>
+    <button
+        *ngIf="property.isRemovable"
+        class="editor-mat-menu-item"
+        mat-menu-item
+        (click)="remove.emit()"
+    >
+        <mat-icon>remove</mat-icon>
+        <span>Remove</span>
+    </button>
+</mat-menu>

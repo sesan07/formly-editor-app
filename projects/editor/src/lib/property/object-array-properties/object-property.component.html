@@ -1,0 +1,189 @@
+<editor-tree-item
+    class="cursor-pointer"
+    *ngIf="!isSimplified; else simplifiedView"
+    [treeLevel]="treeLevel"
+    [(isExpanded)]="isExpanded"
+    [isExpandable]="true"
+    [hasOptions]="hasOptions"
+    [optionsMenu]="optionsMenu"
+>
+    <editor-property-key
+        headerContent
+        [key]="property?.key"
+        [isEditable]="property?.isKeyEditable"
+        (keyChange)="onKeyChanged($event)"
+    >
+        <span>{{ (property?.name ? '(' + property.name + ') ' : '') + '{ ' + childProperties.length + ' }' }}</span>
+    </editor-property-key>
+
+    <ng-container childrenContent>
+        <ng-container *ngTemplateOutlet="childPropertiesView"></ng-container>
+    </ng-container>
+</editor-tree-item>
+
+<ng-template #simplifiedView>
+    <div class="simplified-properties">
+        <ng-container *ngTemplateOutlet="childPropertiesView"></ng-container>
+        <button
+            *ngIf="canAdd"
+            mat-button
+            [matMenuTriggerFor]="addMenu"
+        >
+            <mat-icon>add</mat-icon>
+            <span>Add</span>
+        </button>
+    </div>
+</ng-template>
+
+<ng-template #childPropertiesView>
+    <ng-container *ngFor="let child of childProperties; let i = index; trackBy: trackByPropertyKey">
+        <ng-container *ngIf="isSimplified ? child.isSimple : true">
+            <ng-container [ngSwitch]="child.type">
+                <editor-array-property
+                    *ngSwitchCase="typeofProperty.ARRAY"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [target]="target"
+                    [property]="propertyService.getAsArrayProperty(child)"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-array-property>
+
+                <editor-object-property
+                    *ngSwitchCase="typeofProperty.OBJECT"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [target]="target"
+                    [property]="propertyService.getAsObjectProperty(child)"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-object-property>
+
+                <editor-boolean-property
+                    *ngSwitchCase="typeofProperty.BOOLEAN"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [property]="child"
+                    [target]="target"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-boolean-property>
+
+                <editor-chip-list-property
+                    *ngSwitchCase="typeofProperty.CHIP_LIST"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [property]="propertyService.getAsChiplistProperty(child)"
+                    [target]="target"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-chip-list-property>
+
+                <editor-textarea-property
+                    *ngSwitchCase="typeofProperty.TEXTAREA"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [property]="propertyService.getAsTextareaProperty(child)"
+                    [target]="target"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-textarea-property>
+
+                <editor-expression-properties-property
+                    *ngSwitchCase="typeofProperty.EXPRESSION_PROPERTIES"
+                    [treeLevel]="childrenTreeLevel"
+                    [path]="getChildPath(child.key)"
+                    [property]="propertyService.getAsExpressionPropertiesProperty(child)"
+                    [target]="target"
+                    [isSimplified]="isSimplified"
+                    (remove)="onRemoveChild(i)"
+                    (targetChanged)="targetChanged.emit($event)"
+                >
+                </editor-expression-properties-property>
+
+                <ng-container *ngSwitchCase="typeofProperty.NUMBER">
+                    <ng-container *ngTemplateOutlet="inputProperty"></ng-container>
+                </ng-container>
+                <ng-container *ngSwitchCase="typeofProperty.TEXT">
+                    <ng-container *ngTemplateOutlet="inputProperty"></ng-container>
+                </ng-container>
+                <ng-template #inputProperty>
+                    <editor-input-property
+                        [treeLevel]="childrenTreeLevel"
+                        [path]="getChildPath(child.key)"
+                        [property]="propertyService.getAsInputProperty(child)"
+                        [target]="target"
+                        [isSimplified]="isSimplified"
+                        (remove)="onRemoveChild(i)"
+                        (targetChanged)="targetChanged.emit($event)"
+                    >
+                    </editor-input-property>
+                </ng-template>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</ng-template>
+
+<mat-menu #optionsMenu="matMenu">
+    <button
+        *ngIf="canAdd"
+        class="editor-mat-menu-item"
+        mat-menu-item
+        [matMenuTriggerFor]="addMenu"
+    >
+        <mat-icon>add</mat-icon>
+        <span>Add</span>
+    </button>
+    <button
+        *ngIf="property?.isRemovable"
+        class="editor-mat-menu-item"
+        mat-menu-item
+        color="warn"
+        (click)="remove.emit()"
+    >
+        <mat-icon>remove</mat-icon>
+        <span>Remove</span>
+    </button>
+</mat-menu>
+
+<mat-menu #addMenu="matMenu">
+    <button
+        class="editor-mat-menu-item"
+        mat-menu-item
+        *ngIf="property?.addOptions?.includes(typeofProperty.ARRAY)"
+        [matMenuTriggerFor]="addArrayMenu"
+    >
+        {{ typeofProperty.ARRAY }}
+    </button>
+    <ng-container *ngFor="let type of propertyService.possibleArrayAddTypes">
+        <button
+            class="editor-mat-menu-item"
+            mat-menu-item
+            *ngIf="property?.addOptions?.includes(type)"
+            (click)="onAddChild(type)"
+        >
+            {{ type }}
+        </button>
+    </ng-container>
+</mat-menu>
+
+<mat-menu #addArrayMenu="matMenu">
+    <button
+        *ngFor="let type of propertyService.possibleArrayAddTypes"
+        class="editor-mat-menu-item"
+        mat-menu-item
+        (click)="onAddChild(typeofProperty.ARRAY, type)"
+    >
+        {{ type }}
+    </button>
+</mat-menu>

@@ -1,0 +1,43 @@
+:host {
+    display: block;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:host.edit-mode {
+    padding: 4px;
+    background-color: white;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+:host.edit-mode:hover {
+    border: 1px solid #e0e0e0;
+}
+
+:host.edit-mode.active {
+    border: 2px solid #a3a3a3;
+}
+
+header {
+    display: flex;
+    user-select: none;
+}
+
+.header-title {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    visibility: hidden;
+}
+
+.options.visible {
+    visibility: visible;
+}

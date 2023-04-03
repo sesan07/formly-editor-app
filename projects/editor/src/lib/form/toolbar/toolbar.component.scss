@@ -1,0 +1,19 @@
+:host {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--editor-header-height);
+    padding: 0 8px;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.action-buttons {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 16px;
+}
+
+.toggle-sidebars-icon {
+    transform: rotate(90deg);
+}

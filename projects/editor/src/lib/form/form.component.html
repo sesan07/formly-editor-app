@@ -1,0 +1,75 @@
+<editor-toolbar
+    class="toolbar editor-mat"
+    [(tabIndex)]="toolbarTabIndex"
+    [isEditMode]="form.isEditMode"
+    (isEditModeChange)="onEditModeChanged($event)"
+    (resetModel)="onResetModel()"
+    (duplicateForm)="duplicateForm.emit()"
+    (exportForm)="exportForm.emit()"
+    (toggleSidebars)="toggleSidebars.emit()"
+>
+</editor-toolbar>
+<ng-container *ngIf="formFields$ | async as fields">
+    <mat-tab-group
+        class="tab-group"
+        *ngIf="fields.length; else addFieldButton"
+        [selectedIndex]="toolbarTabIndex"
+    >
+        <mat-tab>
+            <editor-formly-form
+                [fields]="fields"
+                [model]="model$ | async"
+                [form]="formGroup"
+                [options]="options"
+                (modelChange)="onFormModelChanged($event)"
+            >
+            </editor-formly-form>
+        </mat-tab>
+        <mat-tab>
+            <ng-template matTabContent>
+                <editor-text-editor
+                    class="text-editor"
+                    [value]="formFieldsJSON"
+                    [mode]="'application/json'"
+                    readonly
+                ></editor-text-editor>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>
+</ng-container>
+
+<ng-template #addFieldButton>
+    <div class="no-fields-wrapper">
+        <button
+            mat-flat-button
+            color="primary"
+            [matMenuTriggerFor]="addCategoryMenu"
+        >
+            <mat-icon>add</mat-icon>
+            Add Field
+        </button>
+    </div>
+</ng-template>
+
+<mat-menu #addCategoryMenu="matMenu">
+    <ng-container *ngFor="let category of fieldCategories">
+        <button
+            class="editor-mat-menu-item"
+            mat-menu-item
+            [matMenuTriggerFor]="addFieldMenu"
+        >
+            {{ category.name }}
+        </button>
+
+        <mat-menu #addFieldMenu="matMenu">
+            <button
+                class="editor-mat-menu-item"
+                mat-menu-item
+                *ngFor="let option of category.typeOptions"
+                (click)="onAddField(option.name, option.customName)"
+            >
+                {{ option.displayName }}
+            </button>
+        </mat-menu>
+    </ng-container>
+</mat-menu>
