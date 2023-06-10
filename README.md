@@ -2,7 +2,7 @@
 
 A configurable editor for ngx-formly forms.
 
-Demo: https://formly-editor.web.app/home
+https://formly-editor.sesan.dev
 
 ## How to run
 
